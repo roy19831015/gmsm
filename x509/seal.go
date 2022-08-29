@@ -89,7 +89,7 @@ type SesESPictrueInfo struct {
 
 type ExtData struct {
 	ExtnID    asn1.ObjectIdentifier
-	Critical  bool `asn1:"optional"`
+	Critical  bool `asn1:"default:false"`
 	ExtnValue asn1.RawValue
 }
 
@@ -182,7 +182,7 @@ func CreateSeal(usinfo *UserSealInfo, spInfo *SealProviderInfo) (*SESeal, error)
 type SesSignature struct {
 	ToSign         TBS_Sign
 	Cert           asn1.RawValue
-	signatureAlgID asn1.ObjectIdentifier
+	SignatureAlgID asn1.ObjectIdentifier
 	Signature      asn1.BitString
 	TimeStamp      asn1.BitString `asn1:"optional,tag:0"`
 }
@@ -190,8 +190,8 @@ type SesSignature struct {
 type TBS_Sign struct {
 	Version      int `asn1:"default:4"`
 	ESeal        SESeal
-	TimeInfo     time.Time
+	TimeInfo     time.Time `asn1:"generalized"`
 	DataHash     asn1.BitString
-	PropertyInfo string
+	PropertyInfo string    `asn1:"ia5"`
 	ExtDatas     []ExtData `asn1:"optional"`
 }
