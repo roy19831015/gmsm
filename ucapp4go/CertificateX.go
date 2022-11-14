@@ -431,16 +431,6 @@ type SM2EnvelopedKey struct {
 }
 
 func (certx *CertificateX) EncryptExchangeKeyWithSignCert(encodedPlainKey []byte) (string, error) {
-	var pub sm2.PublicKey
-	if certx.GetAlgorithm() == "SM2" {
-		key, err := x509.ParsePKCS8PrivateKey(x509.SM2, encodedPlainKey, nil)
-		if err != nil {
-			return "", err
-		}
-		encodedPlainKey = key.(*sm2.PrivateKey).D.Bytes()
-		pub = key.(*sm2.PrivateKey).PublicKey
-	}
-
 	eci, r, err := x509.ExchangeKeyEncrypt(encodedPlainKey, certx.X509Cert, GetEncryptionAlgorithmBySymmType(certx.EnvelopSymmType))
 	if err != nil {
 		return "", err
@@ -455,7 +445,11 @@ func (certx *CertificateX) EncryptExchangeKeyWithSignCert(encodedPlainKey []byte
 		encodedEk, err := Base64Encode(r.EncryptedKey)
 		return encodedEk + "!!!" + encodedEc, nil
 	case x509.ECDSA:
-
+		pub := &sm2.PublicKey{
+			Curve: certx.X509Cert.PublicKey.(*ecdsa.PublicKey).Curve,
+			X:     certx.X509Cert.PublicKey.(*ecdsa.PublicKey).X,
+			Y:     certx.X509Cert.PublicKey.(*ecdsa.PublicKey).Y,
+		}
 		var sm2cipher sm2.SM2Cipher
 		_, err := asn1.Unmarshal(r.EncryptedKey, &sm2cipher)
 		if err != nil {
@@ -465,8 +459,8 @@ func (certx *CertificateX) EncryptExchangeKeyWithSignCert(encodedPlainKey []byte
 			SymmAlgID:        eci.ContentEncryptionAlgorithm,
 			SymmEncryptedKey: sm2cipher,
 			SM2PublicKey: asn1.BitString{
-				Bytes:     sm2.Compress(&pub),
-				BitLength: 8 * len(sm2.Compress(&pub)),
+				Bytes:     sm2.Compress(pub),
+				BitLength: 8 * len(sm2.Compress(pub)),
 			},
 			SM2EncryptedPrivateKey: asn1.BitString{
 				Bytes:     eci.EncryptedContent.Bytes,
@@ -488,8 +482,8 @@ func (certx *CertificateX) EncryptExchangeKeyWithSignCert(encodedPlainKey []byte
 			SymmAlgID:        eci.ContentEncryptionAlgorithm,
 			SymmEncryptedKey: sm2cipher,
 			SM2PublicKey: asn1.BitString{
-				Bytes:     sm2.Compress(&pub),
-				BitLength: 8 * len(sm2.Compress(&pub)),
+				Bytes:     sm2.Compress(certx.X509Cert.PublicKey.(*sm2.PublicKey)),
+				BitLength: 8 * len(sm2.Compress(certx.X509Cert.PublicKey.(*sm2.PublicKey))),
 			},
 			SM2EncryptedPrivateKey: asn1.BitString{
 				Bytes:     eci.EncryptedContent.Bytes,
