@@ -1331,7 +1331,10 @@ func encryptSM4ECB(content []byte) ([]byte, *EncryptedContentInfo, error) {
 		return nil, nil, err
 	}
 	// Encrypt padded content
-	cyphertext, err := sm4.Sm4Ecb(key, content, true)
+	block, err := sm4.NewCipher(key)
+	cyphertext := make([]byte, 64)
+	block.Encrypt(cyphertext[32:48], content[32:48])
+	block.Encrypt(cyphertext[48:64], content[48:64])
 	if err != nil {
 		return nil, nil, err
 	}
