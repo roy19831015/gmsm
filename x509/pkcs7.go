@@ -1341,7 +1341,7 @@ func encryptSM4ECB(content []byte) ([]byte, *EncryptedContentInfo, error) {
 		ContentEncryptionAlgorithm: pkix.AlgorithmIdentifier{
 			Algorithm: oidEncryptionAlgorithmSM4,
 		},
-		EncryptedContent: marshalEncryptedContent(cyphertext),
+		EncryptedContent: asn1.RawValue{Tag: 0, Class: 2, Bytes: cyphertext, IsCompound: true},
 	}
 
 	return key, &eci, nil
