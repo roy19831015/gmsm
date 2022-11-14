@@ -1148,6 +1148,7 @@ const (
 	EncryptionAlgorithmSM1
 	EncryptionAlgorithmRC4
 	EncryptionAlgorithmAES256EmptyIV
+	EncryptionAlgorithmSM4ECB
 )
 
 // ContentEncryptionAlgorithm determines the algorithm used to encrypt the
@@ -1461,10 +1462,12 @@ func ExchangeKeyEncrypt(content []byte, recipient *Certificate, contentEncryptio
 	switch contentEncryptionAlgorithm {
 	case EncryptionAlgorithmAES256EmptyIV:
 		key, eci, err = encryptAES256WithZeroIV(content)
+	case EncryptionAlgorithmSM4ECB:
+		key, eci, err = encryptSM4ECB(content)
 	case EncryptionAlgorithmAES256:
 		key, eci, err = encryptAES256(content)
 	case EncryptionAlgorithmSM4:
-		key, eci, err = encryptSM4ECB(content)
+		key, eci, err = encryptSM4(content)
 	case EncryptionAlgorithmDESCBC:
 		key, eci, err = encryptDESCBC(content)
 	case EncryptionAlgorithmDESede:

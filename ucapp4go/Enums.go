@@ -10,6 +10,7 @@ const (
 	SM1
 	RC4
 	AES256EmptyIV
+	SM4ECB
 )
 
 //type HashType int
