@@ -1321,6 +1321,35 @@ func encryptSM4(content []byte) ([]byte, *EncryptedContentInfo, error) {
 	return key, &eci, nil
 }
 
+func encryptSM4ECB(content []byte) ([]byte, *EncryptedContentInfo, error) {
+	// Create SM4 key & CBC IV
+	key := make([]byte, 16)
+	_, err := rand.Read(key)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// Encrypt padded content
+	block, err := sm4.NewCipher(key)
+	if err != nil {
+		return nil, nil, err
+	}
+	plaintext, err := pad(content, block.BlockSize())
+	cyphertext := make([]byte, len(plaintext))
+	block.Encrypt(cyphertext, plaintext)
+
+	// Prepare ASN.1 Encrypted Content Info
+	eci := EncryptedContentInfo{
+		ContentType: oidData,
+		ContentEncryptionAlgorithm: pkix.AlgorithmIdentifier{
+			Algorithm: oidEncryptionAlgorithmSM4,
+		},
+		EncryptedContent: marshalEncryptedContent(cyphertext),
+	}
+
+	return key, &eci, nil
+}
+
 func encryptAES256(content []byte) ([]byte, *EncryptedContentInfo, error) {
 	// Create SM4 key & CBC IV
 	key := make([]byte, 32)
@@ -1435,7 +1464,7 @@ func ExchangeKeyEncrypt(content []byte, recipient *Certificate, contentEncryptio
 	case EncryptionAlgorithmAES256:
 		key, eci, err = encryptAES256(content)
 	case EncryptionAlgorithmSM4:
-		key, eci, err = encryptSM4(content)
+		key, eci, err = encryptSM4ECB(content)
 	case EncryptionAlgorithmDESCBC:
 		key, eci, err = encryptDESCBC(content)
 	case EncryptionAlgorithmDESede:
