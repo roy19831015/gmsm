@@ -1331,14 +1331,10 @@ func encryptSM4ECB(content []byte) ([]byte, *EncryptedContentInfo, error) {
 	}
 
 	// Encrypt padded content
-	block, err := sm4.NewCipher(key)
+	cyphertext, err := sm4.Sm4Ecb(key, content, true)
 	if err != nil {
 		return nil, nil, err
 	}
-	plaintext, err := pad(content, block.BlockSize())
-	cyphertext := make([]byte, len(plaintext))
-	block.Encrypt(cyphertext, plaintext)
-
 	// Prepare ASN.1 Encrypted Content Info
 	eci := EncryptedContentInfo{
 		ContentType: oidData,
