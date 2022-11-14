@@ -431,6 +431,14 @@ type SM2EnvelopedKey struct {
 }
 
 func (certx *CertificateX) EncryptExchangeKeyWithSignCert(encodedPlainKey []byte) (string, error) {
+	if certx.GetAlgorithm() == "SM2" {
+		key, err := x509.ParsePKCS8PrivateKey(x509.SM2, encodedPlainKey, nil)
+		if err != nil {
+			return "", err
+		}
+		encodedPlainKey = key.(*sm2.PrivateKey).D.Bytes()
+	}
+
 	eci, r, err := x509.ExchangeKeyEncrypt(encodedPlainKey, certx.X509Cert, GetEncryptionAlgorithmBySymmType(certx.EnvelopSymmType))
 	if err != nil {
 		return "", err

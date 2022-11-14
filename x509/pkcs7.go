@@ -1325,13 +1325,11 @@ func encryptSM4(content []byte) ([]byte, *EncryptedContentInfo, error) {
 func encryptSM4ECB(content []byte) ([]byte, *EncryptedContentInfo, error) {
 	// Create SM4 key & CBC IV
 	key := make([]byte, 16)
-	//test
-	//_, err := rand.Read(key)
+	_, err := rand.Read(key)
 
-	//if err != nil {
-	//	return nil, nil, err
-	//}
-	//test
+	if err != nil {
+		return nil, nil, err
+	}
 	// Encrypt padded content
 	cyphertext, err := sm4.Sm4Ecb(key, content, true)
 	if err != nil {
