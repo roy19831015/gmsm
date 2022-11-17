@@ -1687,7 +1687,7 @@ func buildExtensions(template *Certificate) (ret []pkix.Extension, err error) {
 		}
 		ret[n].Id = oidExtensionBasicConstraints
 		ret[n].Value, err = asn1.Marshal(basicConstraints{template.IsCA, maxPathLen})
-		ret[n].Critical = true
+		//ret[n].Critical = true
 		if err != nil {
 			return
 		}
