@@ -1636,7 +1636,7 @@ func buildExtensions(template *Certificate) (ret []pkix.Extension, err error) {
 	if template.KeyUsage != 0 &&
 		!oidInExtensions(oidExtensionKeyUsage, template.ExtraExtensions) {
 		ret[n].Id = oidExtensionKeyUsage
-		ret[n].Critical = true
+		//ret[n].Critical = true
 
 		var a [2]byte
 		a[0] = reverseBitsInAByte(byte(template.KeyUsage))
