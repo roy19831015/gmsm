@@ -35,6 +35,7 @@ var certFiles = []string{
 
 // CertPool is a set of certificates.
 type CertPool struct {
+	Empty          string
 	bySubjectKeyId map[string][]int
 	byName         map[string][]int
 	certs          []*Certificate
